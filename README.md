@@ -18,7 +18,7 @@ This template makes use of:
 
 **Clone the Repo**
 
-    git clone https://github.com/ericdaugherty/go-lambda-webapp-template
+    git clone https://github.com/ericdaugherty/go-lambda-webapp-template newappname
 
 Since you are creating your own project, remove the remote Repo Reference
 
@@ -73,3 +73,5 @@ All of this can be solved with a few easy steps. The most complete solution is t
 Once the distribution is setup, go to your DNS provider and setup your custom domain CNAME to point to the domain name of your newly created CloudFront Distribution.
 
 Once the CloudFront distribution is deployed and your DNS entries have propagated, you should be able to access your Lambda web app via your custom domain, and HTTP requests should auto-upgrade to HTTPS.
+
+Note: This example uses the AWS API Gateway by default. You can also use the newer AWS HTTP Gateway by changing the "- http:" lines in serverless.yml to "- httpApi:". For usage as a webapp this may be a better (cheaper) alternative. Please view the [feature comparison](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) for details.
