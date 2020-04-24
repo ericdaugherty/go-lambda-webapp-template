@@ -20,7 +20,7 @@ This template makes use of:
 
     git clone https://github.com/ericdaugherty/go-lambda-webapp-template newappname
 
-Since you are creating your own project, remove the remote Repo Reference
+Since you are creating your own project, remove the remote repo reference
 
     git remote rm origin
 
@@ -42,7 +42,7 @@ Then deploy:
 
     make deploy
 
-This should create a new CloudFormation stack on AWS including your all-in-one lambda and an API Gateway HTTP Endpoint. 
+This should create a new CloudFormation stack on AWS including your all-in-one lambda and an REST API Gateway HTTP Endpoint. 
 
 Serverless should provide the HTTP Endpoint URL for you. It should look something like:
 
@@ -59,7 +59,7 @@ This basic setup has some limitations.
 
 All of this can be solved with a few easy steps. The most complete solution is to use CloudFront with a custom domain.
 
-* Deploy the API Gateway Endpoint as Regional (Uncomment "endpointType: regional" in serverless.yml and "make deploy")
+* Deploy the REST API Gateway Endpoint as Regional (Uncomment "endpointType: regional" in serverless.yml and "make deploy")
 * Configure a certificate for your custom domain (https://console.aws.amazon.com/acm/home)
 * Configure a CloudFront Distribution
   * Origin Domain Name: https://<app-id>.execute-api.<region>.amazonaws.com
@@ -74,4 +74,4 @@ Once the distribution is setup, go to your DNS provider and setup your custom do
 
 Once the CloudFront distribution is deployed and your DNS entries have propagated, you should be able to access your Lambda web app via your custom domain, and HTTP requests should auto-upgrade to HTTPS.
 
-Note: This example uses the AWS API Gateway by default. You can also use the newer AWS HTTP Gateway by changing the "- http:" lines in serverless.yml to "- httpApi:". For usage as a webapp this may be a better (cheaper) alternative. Please view the [feature comparison](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) for details.
+Note: This example uses the REST API Gateway by default. You can also use the newer HTTP API Gateway by changing the "- http:" lines in serverless.yml to "- httpApi:". For usage as a webapp this may be a better (cheaper) alternative. Please view the [feature comparison](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) for details.
