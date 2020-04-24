@@ -1,0 +1,25 @@
+# https://serverless.com/framework/docs/providers/aws/guide/serverless.yml/
+service: webapp-template
+
+provider:
+  name: aws
+  runtime: go1.x
+  # endpointType: regional
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./webapp
+
+functions:
+  web:
+    handler: webapp
+    memorySize: 128
+    events:
+      - http:
+          method: GET
+          path: /
+      - http:
+          method: GET
+          path: /{any+}

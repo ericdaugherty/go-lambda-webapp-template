@@ -19,6 +19,10 @@ aws:
 	$(eval GOOS=linux)
 	$(eval RACE=)
 
+.PHONY: log
+log: ## Tail Lambda logfile
+	serverless logs -f web -t
+
 .PHONY: deploy
 deploy: clean aws build ## Deploy via Serverless
 	sls deploy --verbose

@@ -81,6 +81,10 @@ func (web *web) initPkgerTemplates(funcMap template.FuncMap) error {
 
 	// parse each template
 	for _, filePath := range templatePaths {
+		if filePath == "/templates/helpers" {
+			// Don't try to load the helper directory
+			continue
+		}
 		name := path.Base(filePath)
 		t := template.New(name).Funcs(funcMap)
 		b, err := web.readPkgerFiles([]string{filePath})
