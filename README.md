@@ -3,7 +3,7 @@
 
 This repository is a template that can be used to start building a self contained web-application written in Go and deployed on AWS Lambda.
 
-This template makes use of minimal eternal components while providing a ready-to-use template to develop an all-in-one Lambda web application.
+This template makes use of minimal external components while providing a ready-to-use template to develop an all-in-one Lambda web application.
 
 This template makes use of:
 - [Pkger](https://github.com/markbates/pkger) to statically include templates and static web assets.
