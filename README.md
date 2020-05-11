@@ -50,7 +50,7 @@ Serverless should provide the HTTP Endpoint URL for you. It should look somethin
 
 You will want to add a trailing / to make sure the links work.
 
-## Deploy with Custom Domain
+## Deploy using CloudFormation with a Custom Domain
 
 This basic setup has some limitations.
 * You must include the stage name as part of the url (ie /dev)
@@ -75,3 +75,19 @@ Once the distribution is setup, go to your DNS provider and setup your custom do
 Once the CloudFront distribution is deployed and your DNS entries have propagated, you should be able to access your Lambda web app via your custom domain, and HTTP requests should auto-upgrade to HTTPS.
 
 Note: This example uses the REST API Gateway by default. You can also use the newer HTTP API Gateway by changing the "- http:" lines in serverless.yml to "- httpApi:". For usage as a webapp this may be a better (cheaper) alternative. Please view the [feature comparison](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) for details.
+
+## Deploy using API Custom Domain
+
+Note: This approach only supports https, not http or http->https
+
+* Configure a certificate for your custom domain (https://console.aws.amazon.com/acm/home)
+* Navigate to the [API Gateway Console](https://console.aws.amazon.com/apigateway/)
+* Select 'Custom domain names' and click "Create"
+  * Enter the full name of the domain you created a certificate for
+  * Leave the Endpoint and TLS Defaults
+  * Select your certificate from the drop-down
+  * Select 'Create'
+  * On the next page, select 'Configure API Mappings'
+  * Select 'Add new mapping'
+  * Map your API Endpoint to the domain
+* Update your DNS records to point your custom CNAME to the 'API Gateway domain name' value.
