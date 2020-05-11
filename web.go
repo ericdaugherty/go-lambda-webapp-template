@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"time"
+
+	"github.com/go-chi/chi/middleware"
 )
 
 type web struct {
@@ -14,13 +17,6 @@ type web struct {
 }
 
 func (web *web) home(w http.ResponseWriter, r *http.Request) {
-	// called on every invocation to enable hot-reload in devMode
-	err := web.initTemplates()
-	if err != nil {
-		web.errorHandler(w, r, err.Error())
-		return
-	}
-
 	name := r.URL.Query().Get("name")
 
 	templateData := make(map[string]interface{})
@@ -30,8 +26,14 @@ func (web *web) home(w http.ResponseWriter, r *http.Request) {
 	web.renderTemplate(w, r, "hello.html", templateData)
 }
 
-func (*web) errorHandler(w http.ResponseWriter, r *http.Request, errorDesc string) {
+func (web *web) errorHandler(w http.ResponseWriter, r *http.Request, errorDesc string) {
+	reqID := middleware.GetReqID(r.Context())
+	log.Printf("[%v] Server Error: %v", reqID, errorDesc)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusInternalServerError)
-	fmt.Fprintf(w, "Server Error: %v", errorDesc)
+	if web.devMode {
+		fmt.Fprintf(w, "Server Error: %v", errorDesc)
+	} else {
+		fmt.Fprintf(w, "Server Error")
+	}
 }

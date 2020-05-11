@@ -14,6 +14,18 @@ import (
 
 // template related methods for web struct.
 
+func (web *web) templateMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := web.initTemplates()
+		if err != nil {
+			web.errorHandler(w, r, err.Error())
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 // initTemplates initializes templates for use.
 // templates are initialized only once, unless web.DevMode is true.
 func (web *web) initTemplates() (err error) {
@@ -36,7 +48,6 @@ func (web *web) initTemplates() (err error) {
 		err = web.initPkgerTemplates(funcMap)
 	}
 	return
-
 }
 
 func (web *web) initLocalTemplates(funcMap template.FuncMap) error {
