@@ -61,7 +61,7 @@ All of this can be solved with a few easy steps. The most complete solution is t
 
 * Deploy the REST API Gateway Endpoint as Regional (Uncomment "endpointType: regional" in serverless.yml and "make deploy")
 * Configure a certificate for your custom domain (https://console.aws.amazon.com/acm/home)
-* Configure a CloudFront Distribution
+* Configure a [CloudFront Distribution](https://console.aws.amazon.com/cloudfront/home)
   * Origin Domain Name: https://<app-id>.execute-api.<region>.amazonaws.com
   * Origin Path: /<stage name> (ex /dev)
   * Minimum Origin SSL Protocol: TLSv1.2
