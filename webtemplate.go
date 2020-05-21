@@ -29,37 +29,36 @@ func (web *web) templateMiddleware(next http.Handler) http.Handler {
 // initTemplates initializes templates for use.
 // templates are initialized only once, unless web.DevMode is true.
 func (web *web) initTemplates() (err error) {
-	if web.templates != nil && !web.devMode {
-		return
-	}
-
-	if web.templates == nil {
-		web.templates = make(map[string]*template.Template)
-	}
-
-	// add functions for use within the templates
-	funcMap := template.FuncMap{
-		"SayHello": func(name string) string { return "Hello " + name },
-	}
-
 	if web.devMode {
-		err = web.initLocalTemplates(funcMap)
-	} else {
-		err = web.initPkgerTemplates(funcMap)
+		web.templates, err = web.initLocalTemplates()
+		return err
 	}
+
+	web.tmplOnce.Do(func() {
+		web.templates, err = web.initPkgerTemplates()
+	})
 	return
 }
 
-func (web *web) initLocalTemplates(funcMap template.FuncMap) error {
+func (*web) templateFuncs() map[string]interface{} {
+	return template.FuncMap{
+		"SayHello": func(name string) string { return "Hello " + name },
+	}
+}
+
+func (web *web) initLocalTemplates() (map[string]*template.Template, error) {
+	funcMap := web.templateFuncs()
+	tmpl := make(map[string]*template.Template)
+
 	// get all the template file paths
 	templatePaths, err := filepath.Glob(path.Join("./templates", "*.*"))
 	if err != nil {
-		return err
+		return web.templates, err
 	}
 	// get the template helper file paths (to be included while compiling each template)
 	templateHelperPaths, err := filepath.Glob(path.Join("./templates/helpers", "*.*"))
 	if err != nil {
-		return err
+		return web.templates, err
 	}
 
 	// parse each template
@@ -67,24 +66,27 @@ func (web *web) initLocalTemplates(funcMap template.FuncMap) error {
 		name := path.Base(filePath)
 		t := template.New(name).Funcs(funcMap)
 		paths := append(templateHelperPaths, filePath)
-		web.templates[name] = template.Must(t.ParseFiles(paths...))
+		tmpl[name] = template.Must(t.ParseFiles(paths...))
 	}
-	return nil
+	return tmpl, nil
 }
 
-func (web *web) initPkgerTemplates(funcMap template.FuncMap) error {
+func (web *web) initPkgerTemplates() (map[string]*template.Template, error) {
+	funcMap := web.templateFuncs()
+	tmpl := make(map[string]*template.Template)
+
 	// tell pkger to include the templates folder
 	pkger.Include("/templates")
 
 	// get all the template file paths
 	templatePaths, err := web.globPkger("/templates")
 	if err != nil {
-		return err
+		return tmpl, err
 	}
 	// get the template helper file paths (to be included while compiling each template)
 	templateHelperPaths, err := web.globPkger("/templates/helpers")
 	if err != nil {
-		return err
+		return tmpl, err
 	}
 
 	// load the helper files once.
@@ -100,12 +102,12 @@ func (web *web) initPkgerTemplates(funcMap template.FuncMap) error {
 		t := template.New(name).Funcs(funcMap)
 		b, err := web.readPkgerFiles([]string{filePath})
 		if err != nil {
-			return err
+			return tmpl, err
 		}
 		b = append(hb, b...)
-		web.templates[name] = template.Must(t.Parse(string(b)))
+		tmpl[name] = template.Must(t.Parse(string(b)))
 	}
-	return nil
+	return tmpl, nil
 }
 
 func (web *web) renderTemplate(w http.ResponseWriter, r *http.Request, name string, data map[string]interface{}) {

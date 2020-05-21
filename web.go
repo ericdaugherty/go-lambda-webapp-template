@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
@@ -13,6 +14,8 @@ import (
 type web struct {
 	devMode   bool
 	tmpl      *template.Template
+	tmplOnce  sync.Once
+	tmplMux   sync.Mutex
 	templates map[string]*template.Template
 }
 
