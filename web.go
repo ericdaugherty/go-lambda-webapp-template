@@ -15,7 +15,6 @@ type web struct {
 	devMode   bool
 	tmpl      *template.Template
 	tmplOnce  sync.Once
-	tmplMux   sync.Mutex
 	templates map[string]*template.Template
 }
 
