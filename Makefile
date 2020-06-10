@@ -1,9 +1,12 @@
 GOOS?=$(shell go env GOOS)
 RACE?=-race
 
+.PHONY: precompile
+precompile: ## Runs pre-compile steps for deployment
+	pkger
+
 .PHONY: build
 build: ## Builds go application
-	pkger
 	env GOOS=$(GOOS) go build $(RACE) -o webapp
 
 .PHONY: run
@@ -24,7 +27,7 @@ log: ## Tail Lambda logfile
 	serverless logs -f web -t
 
 .PHONY: deploy
-deploy: clean aws build ## Deploy via Serverless
+deploy: clean aws precompile build ## Deploy via Serverless
 	sls deploy --verbose
 
 .PHONY: help
