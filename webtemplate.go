@@ -30,7 +30,9 @@ func (web *web) templateMiddleware(next http.Handler) http.Handler {
 // templates are initialized only once, unless web.DevMode is true.
 func (web *web) initTemplates() (err error) {
 	if web.devMode {
+		web.tmplMux.Lock()
 		web.templates, err = web.initLocalTemplates()
+		web.tmplMux.Unlock()
 		return err
 	}
 
@@ -112,7 +114,9 @@ func (web *web) initPkgerTemplates() (map[string]*template.Template, error) {
 
 func (web *web) renderTemplate(w http.ResponseWriter, r *http.Request, name string, data map[string]interface{}) {
 
+	web.tmplMux.RLock()
 	tmpl, ok := web.templates[name]
+	web.tmplMux.RUnlock()
 	if !ok {
 		web.errorHandler(w, r, fmt.Sprintf("No template found for name: %s", name))
 		return
