@@ -68,7 +68,11 @@ func (web *web) initLocalTemplates() (map[string]*template.Template, error) {
 		name := path.Base(filePath)
 		t := template.New(name).Funcs(funcMap)
 		paths := append(templateHelperPaths, filePath)
-		tmpl[name] = template.Must(t.ParseFiles(paths...))
+		t, err := t.ParseFiles(paths...)
+		if err != nil {
+			return tmpl, err
+		}
+		tmpl[name] = t
 	}
 	return tmpl, nil
 }
