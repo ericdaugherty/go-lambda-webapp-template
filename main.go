@@ -18,8 +18,7 @@ var embeded embed.FS
 func handler(devMode bool) http.Handler {
 	web := web{devMode: devMode}
 
-	// setup static FileServer to use pkger on AWS or local files when running locally
-
+	// setup static FileServer to use embed on AWS or local files when running locally
 	publicDir, err := fs.Sub(embeded, "public")
 	if err != nil {
 		panic(err)
