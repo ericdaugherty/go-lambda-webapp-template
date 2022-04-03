@@ -1,21 +1,30 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/apex/gateway"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/markbates/pkger"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
+
+//go:embed public templates
+var embeded embed.FS
 
 func handler(devMode bool) http.Handler {
 	web := web{devMode: devMode}
 
 	// setup static FileServer to use pkger on AWS or local files when running locally
-	var dir http.FileSystem = pkger.Dir("/public")
+
+	publicDir, err := fs.Sub(embeded, "public")
+	if err != nil {
+		panic(err)
+	}
+	var dir http.FileSystem = http.FS(publicDir)
 	if devMode {
 		dir = http.Dir("./public")
 	}

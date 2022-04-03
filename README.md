@@ -6,15 +6,10 @@ This repository is a template that can be used to start building a self containe
 This template makes use of minimal external components while providing a ready-to-use template to develop an all-in-one Lambda web application.
 
 This template makes use of:
-- [Pkger](https://github.com/markbates/pkger) to statically include templates and static web assets.
 - [Apex Gateway](https://github.com/apex/gateway) to map between Lambda requests and standard net.http requests.
 - [CHI](github.com/go-chi/chi) to route incoming requests.
 
 ## Usage
-
-**Install [pkger](https://github.com/markbates/pkger)**
-
-    go get github.com/markbates/pkger/cmd/pkger
 
 **Clone the Repo**
 

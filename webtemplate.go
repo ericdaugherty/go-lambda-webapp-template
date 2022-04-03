@@ -3,13 +3,10 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
+	"io/fs"
 	"net/http"
 	"path"
 	"path/filepath"
-
-	"github.com/markbates/pkger"
-	"github.com/markbates/pkger/pkging"
 )
 
 // template related methods for web struct.
@@ -81,32 +78,38 @@ func (web *web) initPkgerTemplates() (map[string]*template.Template, error) {
 	funcMap := web.templateFuncs()
 	tmpl := make(map[string]*template.Template)
 
-	// tell pkger to include the templates folder
-	pkger.Include("/templates")
-
-	// get all the template file paths
-	templatePaths, err := web.globPkger("/templates")
+	// TODO: Not currently recursive...
+	templatePaths, err := fs.Glob(embeded, "templates/*")
 	if err != nil {
 		return tmpl, err
 	}
 	// get the template helper file paths (to be included while compiling each template)
-	templateHelperPaths, err := web.globPkger("/templates/helpers")
+	// TODO: Not currently recursive...
+	templateHelperPaths, err := fs.Glob(embeded, "templates/helpers/*")
 	if err != nil {
 		return tmpl, err
 	}
 
-	// load the helper files once.
-	hb, err := web.readPkgerFiles(templateHelperPaths)
+	// load and merge helper files.
+	hb := []byte{}
+	for _, fn := range templateHelperPaths {
+		var fb []byte
+		fb, err = embeded.ReadFile(fn)
+		if err != nil {
+			return tmpl, err
+		}
+		hb = append(hb, fb...)
+	}
 
 	// parse each template
 	for _, filePath := range templatePaths {
-		if filePath == "/templates/helpers" {
+		if filePath == "templates/helpers" {
 			// Don't try to load the helper directory
 			continue
 		}
 		name := path.Base(filePath)
 		t := template.New(name).Funcs(funcMap)
-		b, err := web.readPkgerFiles([]string{filePath})
+		b, err := embeded.ReadFile(filePath)
 		if err != nil {
 			return tmpl, err
 		}
@@ -131,53 +134,4 @@ func (web *web) renderTemplate(w http.ResponseWriter, r *http.Request, name stri
 	if err != nil {
 		web.errorHandler(w, r, fmt.Sprintf("Unable to Execute Template %v. Error: %v", name, err))
 	}
-}
-
-// globPkger is a simple (non pattern matching) version of glob for Pkger
-func (*web) globPkger(dir string) (m []string, err error) {
-	fi, err := pkger.Stat(dir)
-	if err != nil {
-		return
-	}
-	if !fi.IsDir() {
-		return
-	}
-	d, err := pkger.Open(dir)
-	if err != nil {
-		return
-	}
-	defer d.Close()
-
-	names, err := d.Readdir(-1)
-	if err != nil {
-		return
-	}
-
-	for _, n := range names {
-		m = append(m, path.Join(dir, n.Name()))
-	}
-
-	return
-}
-
-// readPkgerFiles reads all the files in the specified slice and returns a
-// single []byte containing the full contents
-func (*web) readPkgerFiles(fns []string) (b []byte, err error) {
-
-	for _, fn := range fns {
-		var f pkging.File
-		f, err = pkger.Open(fn)
-		if err != nil {
-			return
-		}
-		var fb []byte
-		fb, err = ioutil.ReadAll(f)
-		f.Close()
-		if err != nil {
-			return
-		}
-		b = append(b, fb...)
-	}
-
-	return
 }
